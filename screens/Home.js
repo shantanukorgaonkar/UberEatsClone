@@ -1,4 +1,4 @@
-import { View, Text, ScrollView } from 'react-native'
+import { View, Text, ScrollView , BackHandler} from 'react-native'
 import React, {useEffect, useState} from 'react'
 import HeaderTabs from '../components/HeaderTabs'
 import SearchBar from '../components/SearchBar'
@@ -6,7 +6,8 @@ import Categories from '../components/Categories'
 import RestaurantItems from '../components/RestaurantItems'
 import { Divider } from 'react-native-elements'
 import {YELP_API_KEY} from '@env'
-import { getOrders, getRestaurants } from '../api'
+import { getOrders, getRestaurants } from '../api';
+import { useFocusEffect } from '@react-navigation/native';
 
 
 export const localRestaurants = [
@@ -60,7 +61,18 @@ export default function Home({navigation}) {
     
   }
 
-  
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        BackHandler.exitApp();
+        return true;
+      };
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => {
+        BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+      };
+    }, []),
+  );
 
   useEffect(()=>{
      getRestaurantsFromYelp();

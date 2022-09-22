@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import OrderItem from './OrderItem';
 import LottieView from 'lottie-react-native'
+import { addOrders } from '../../api';
 
 export default function ViewCart({ navigation }) {
     const [loading, setLoading] = useState(false)
@@ -18,17 +19,11 @@ export default function ViewCart({ navigation }) {
 
     const orderCheckout = async () => {
         setLoading(true);
-        const url='https://uber-eats-clone-backend.onrender.com/api/v1/orders';
-        const options ={
-            method:'POST',
-            headers:{
-                'Content-Type':'application/json'
-            },
-            body:JSON.stringify({restaurantName,cartItems,cartValue})
-        }
         try {
-            const result = await fetch(url,options)
-            if(result.ok){
+            const addedOrder = await addOrders(restaurantName, cartItems, cartValue);
+            if (!addedOrder) {
+                throw new Error("Order not completed")
+            } else {
                 setTimeout(() => {
                     setLoading(false)
                     navigation.navigate("OrderCompleted", {
@@ -40,9 +35,9 @@ export default function ViewCart({ navigation }) {
                 }, 2500)
             }
         } catch (error) {
-            console.log(error.message)
+            console.log(error)
         }
-       
+
     }
 
     const checkoutModalContent = () => {
@@ -132,8 +127,8 @@ export default function ViewCart({ navigation }) {
                     opacity: 0.6,
                     justifyContent: 'center',
                     alignItems: 'center',
-                    height:'100%',
-                    width:'100%'
+                    height: '100%',
+                    width: '100%'
                 }}>
                 <LottieView
                     style={{ height: 200 }}
